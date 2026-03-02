@@ -1,26 +1,33 @@
 pipeline {
-  agent any
+    agent any
 
-  tools {
-        maven 'maven-3.9.12'
-    }
-  
-  stages {
-/*      stage('Build Artifact') {
+    stages {
+
+        stage('Build Artifact - Maven') {
             steps {
-              sh "mvn clean package -DskipTests=true"
-              archive 'target/*.jar' //so that they can be downloaded later
+                sh "mvn clean package -DskipTests=true"
+                archive 'target/*.jar'
             }
-        }  
-      stage('unit test') {
+        }
+
+        stage('Unit Tests - JUnit and Jacoco') {
             steps {
-               sh "mvn test"
-         }
-      } */
-    stage('print env'){
-      steps{
-        sh 'printenv'
-      }
+                sh "mvn test"
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                    jacoco execPattern: 'target/jacoco.exec'
+                }
+            }
+        }
+
+        stage('Docker Build and Push') {
+            steps {
+                sh 'printenv'
+                sh 'docker build -t ramakanth333/numeric-app:"$GIT_COMMIT" .'
+                sh 'docker push ramakanth333/numeric-app:"$GIT_COMMIT"'
+            }
+        }
     }
-  }
 }
