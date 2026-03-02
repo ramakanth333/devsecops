@@ -17,13 +17,10 @@ pipeline {
                sh "mvn test"
          }
       }
+    stage('print env'){
+      steps{
+        sh 'printenv'
+      }
     }
-  post {
-        always {
-            jacoco execPattern: '**/target/jacoco.exec',
-                   classPattern: '**/target/classes',
-                   sourcePattern: '**/src/main/java',
-                   exclusionPattern: ''
-        }
-    }
+  }
 }
